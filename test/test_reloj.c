@@ -18,24 +18,56 @@
 */
 
 #define TICKS_PER_SECOND 5
+clock_t reloj;
+
+void SimulateSeconds(int seconds){
+        for(int index = 0; index < TICKS_PER_SECOND * seconds; index++){
+        ClockNewTick(reloj);
+    }
+}
+
+void setUp(void){
+    static const uint8_t INICIAL[] = {1, 2, 3, 4};
+    reloj = ClockCreate(TICKS_PER_SECOND);
+    ClockSetupTime(reloj, INICIAL, sizeof(INICIAL));
+
+}
 
 //1) Configurar la libreria, consultar la hora y tiene que invalida.
 void test_hora_inicial_invalida(void) {
-    static const uint8_t ESPERADO[] = {0, 0, 0, 0, 0, 0, 0};
+    static const uint8_t ESPERADO[] = {0, 0, 0, 0, 0, 0};
     uint8_t hora[6];
-    clock_t reloj = ClockCreate(TICKS_PER_SECOND);
+    reloj = ClockCreate(TICKS_PER_SECOND);
     TEST_ASSERT_FALSE(ClockGetTime(reloj, hora, sizeof(hora)));
     TEST_ASSERT_EQUAL_UINT8_ARRAY(ESPERADO, hora, sizeof(ESPERADO));
 }
 
 
-
+//2) Configurar la libreria, ajustar la hora (con valores correctos), consultar la hora y tiene que ser valida.
 void test_set_up_current_time(void){
-    static const uint8_t INICIAL[] = {1, 2, 3, 4};
-    static const uint8_t ESPERADO[] = {1, 2, 3, 4, 0, 0, 0};
+    
+    static const uint8_t ESPERADO[] = {1, 2, 3, 4, 0, 0};
     uint8_t hora[6];
-    clock_t reloj = ClockCreate(TICKS_PER_SECOND);
-    ClockSetupTime(reloj, INICIAL, 4);
     TEST_ASSERT_TRUE(ClockGetTime(reloj, hora, sizeof(hora)));
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(ESPERADO, hora, sizeof(ESPERADO));
+}
+
+//4) Simular el paso de n ciclos de reloj, consultar la hora y verificar que avanzo un segundo.
+
+void test_one_second_elapsed(void){
+
+    static const uint8_t ESPERADO[] = {1, 2, 3, 4, 0, 1};
+    uint8_t hora[6];
+    SimulateSeconds(1);
+    ClockGetTime(reloj, hora, sizeof(hora));
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(ESPERADO, hora, sizeof(ESPERADO));
+}
+
+void test_ten_second_elapsed(void){
+
+    static const uint8_t ESPERADO[] = {1, 2, 3, 4, 1, 0};
+    uint8_t hora[6];
+    SimulateSeconds(10);
+    ClockGetTime(reloj, hora, sizeof(hora));
     TEST_ASSERT_EQUAL_UINT8_ARRAY(ESPERADO, hora, sizeof(ESPERADO));
 }
