@@ -71,3 +71,46 @@ void test_ten_second_elapsed(void){
     ClockGetTime(reloj, hora, sizeof(hora));
     TEST_ASSERT_EQUAL_UINT8_ARRAY(ESPERADO, hora, sizeof(ESPERADO));
 }
+
+void test_one_minute_elapsed(void){
+
+    static const uint8_t ESPERADO[] = {1, 2, 3, 5, 0, 0};
+    uint8_t hora[6];
+    SimulateSeconds(60);
+    ClockGetTime(reloj, hora, sizeof(hora));
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(ESPERADO, hora, sizeof(ESPERADO));
+}
+
+void test_ten_minute_elapsed(void){
+
+    static const uint8_t ESPERADO[] = {1, 2, 4, 4, 0, 0};
+    uint8_t hora[6];
+    SimulateSeconds(60 * 10);
+    ClockGetTime(reloj, hora, sizeof(hora));
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(ESPERADO, hora, sizeof(ESPERADO));
+}
+
+void test_one_hour_elapsed(void){
+
+    static const uint8_t ESPERADO[] = {1, 3, 3, 4, 0, 0};
+    uint8_t hora[6];
+    SimulateSeconds(60 * 60);
+    ClockGetTime(reloj, hora, sizeof(hora));
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(ESPERADO, hora, sizeof(ESPERADO));
+}
+void test_ten_hour_elapsed(void){
+
+    static const uint8_t ESPERADO[] = {2, 2, 3, 4, 0, 0};
+    uint8_t hora[6];
+    SimulateSeconds(60 * 60 * 10);
+    ClockGetTime(reloj, hora, sizeof(hora));
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(ESPERADO, hora, sizeof(ESPERADO));
+}
+void test_one_day_elapsed(void){
+
+    static const uint8_t ESPERADO[] = {1, 2, 3, 4, 0, 0};
+    uint8_t hora[6];
+    SimulateSeconds(60 * 60 * 24 );
+    ClockGetTime(reloj, hora, sizeof(hora));
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(ESPERADO, hora, sizeof(ESPERADO));
+}
