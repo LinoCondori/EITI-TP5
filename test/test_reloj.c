@@ -148,8 +148,23 @@ void test_setup_and_fire_alarm(void){
     ClockSetupAlarm(reloj, ALARMA, sizeof(ALARMA));
     SimulateSeconds(60);
     TEST_ASSERT_TRUE(alarm_state);
+    alarm_state = false;
+    SimulateSeconds(60); //24*60*60-1
+    TEST_ASSERT_FALSE(alarm_state);
 
 }
+
+void test_setup_and_not_fire_alarm(void){
+    static const uint8_t ALARMA[] = {1, 2, 3, 5};
+
+    ClockSetupAlarm(reloj, ALARMA, sizeof(ALARMA));
+    ClockToggleAlarm(reloj);
+
+    SimulateSeconds(60);
+    TEST_ASSERT_FALSE(alarm_state);
+
+}
+
 
 
 

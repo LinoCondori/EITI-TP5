@@ -85,7 +85,7 @@ void ClockNewTick(clock_t clock){
                 break;
             }
         }
-        if(activate ){
+        if(activate && clock->enabled ){
             clock->event_handler(clock, true);
         }
     }
