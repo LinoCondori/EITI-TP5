@@ -19,6 +19,7 @@
 
 #define TICKS_PER_SECOND 5
 clock_t reloj;
+bool alarm_state;
 
 void SimulateSeconds(int seconds){
         for(int index = 0; index < TICKS_PER_SECOND * seconds; index++){
@@ -26,10 +27,15 @@ void SimulateSeconds(int seconds){
     }
 }
 
+void AlarmEventHandler(clock_t clock, bool state){
+    alarm_state = state;
+}
+
 void setUp(void){
     static const uint8_t INICIAL[] = {1, 2, 3, 4};
-    reloj = ClockCreate(TICKS_PER_SECOND);
+    reloj = ClockCreate(TICKS_PER_SECOND, AlarmEventHandler);
     ClockSetupTime(reloj, INICIAL, sizeof(INICIAL));
+    alarm_state = false;
 
 }
 
@@ -37,9 +43,11 @@ void setUp(void){
 void test_hora_inicial_invalida(void) {
     static const uint8_t ESPERADO[] = {0, 0, 0, 0, 0, 0};
     uint8_t hora[6];
-    reloj = ClockCreate(TICKS_PER_SECOND);
+    uint8_t alarma[4];
+    reloj = ClockCreate(TICKS_PER_SECOND, AlarmEventHandler);
     TEST_ASSERT_FALSE(ClockGetTime(reloj, hora, sizeof(hora)));
     TEST_ASSERT_EQUAL_UINT8_ARRAY(ESPERADO, hora, sizeof(ESPERADO));
+    TEST_ASSERT_FALSE(ClockGetAlarm(reloj, alarma, sizeof(alarma)));
 }
 
 
@@ -114,3 +122,35 @@ void test_one_day_elapsed(void){
     ClockGetTime(reloj, hora, sizeof(hora));
     TEST_ASSERT_EQUAL_UINT8_ARRAY(ESPERADO, hora, sizeof(ESPERADO));
 }
+
+void test_setup_and_get_alarm(void){
+    static const uint8_t ALARMA[] = {1, 2, 3, 5};
+    uint8_t hora[4];
+
+    ClockSetupAlarm(reloj, ALARMA, sizeof(ALARMA));
+    TEST_ASSERT_TRUE(ClockGetAlarm(reloj, hora, sizeof(hora)));
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(ALARMA, hora, sizeof(ALARMA));
+}
+
+void test_setup_and_disable_alarm(void){
+    static const uint8_t ALARMA[] = {1, 2, 3, 5};
+    uint8_t hora[4];
+
+    ClockSetupAlarm(reloj, ALARMA, sizeof(ALARMA));
+    TEST_ASSERT_FALSE(ClockToggleAlarm(reloj));
+
+    TEST_ASSERT_FALSE(ClockGetAlarm(reloj, hora, sizeof(hora)));
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(ALARMA, hora, sizeof(ALARMA));
+}
+
+void test_setup_and_fire_alarm(void){
+    static const uint8_t ALARMA[] = {1, 2, 3, 5};
+    ClockSetupAlarm(reloj, ALARMA, sizeof(ALARMA));
+    SimulateSeconds(60);
+    TEST_ASSERT_TRUE(alarm_state);
+
+}
+
+
+
+
