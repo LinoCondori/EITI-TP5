@@ -16,10 +16,12 @@
 struct clock_s {
     bool valid;
     bool enabled;
+    bool enabled_pos;
     uint16_t ticks_per_second;
     uint16_t ticks_count;
     uint8_t time[TIME_SIZE];
     uint8_t alarm[ALARM_SIZE];
+    uint8_t pospuesta[ALARM_SIZE];
     clock_event_t event_handler;
 };
 
@@ -30,6 +32,7 @@ static struct clock_s instances;
 clock_t ClockCreate(uint16_t ticks_per_second, clock_event_t event_handler){
     instances.valid = false;
     instances.enabled = false;
+    instances.enabled_pos = false;
     instances.event_handler = event_handler;
     instances.ticks_count = START_VALUE;
     instances.ticks_per_second = ticks_per_second;
@@ -108,3 +111,13 @@ bool ClockToggleAlarm(clock_t clock){
     clock->enabled = !clock->enabled;
     return clock->enabled;
     }
+
+void ClockSetupPospuesta(clock_t clock, uint8_t const * const posp, uint8_t size){
+    memcpy(clock->pospuesta, posp, size);
+    clock->enabled_pos = true;
+}
+
+bool ClockGetPospuesta(clock_t clock, uint8_t * posp, uint8_t size){
+    memcpy(posp, clock->pospuesta, size);
+    return clock->enabled_pos;
+}

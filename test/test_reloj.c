@@ -20,6 +20,7 @@
 #define TICKS_PER_SECOND 5
 clock_t reloj;
 bool alarm_state;
+bool posp_state;
 
 void SimulateSeconds(int seconds){
         for(int index = 0; index < TICKS_PER_SECOND * seconds; index++){
@@ -31,11 +32,16 @@ void AlarmEventHandler(clock_t clock, bool state){
     alarm_state = state;
 }
 
+void PospEventHandler(clock_t clock, bool state){
+    posp_state = state;
+}
+
 void setUp(void){
     static const uint8_t INICIAL[] = {1, 2, 3, 4};
     reloj = ClockCreate(TICKS_PER_SECOND, AlarmEventHandler);
     ClockSetupTime(reloj, INICIAL, sizeof(INICIAL));
     alarm_state = false;
+    posp_state = false;
 
 }
 
@@ -166,6 +172,22 @@ void test_setup_and_not_fire_alarm(void){
 }
 
 
+void test_posponer_alarma(void){
+    static const uint8_t ALARMA[] = {1, 2, 3, 5};
+    static const uint8_t POSPUESTA[] = {1, 2, 4, 1};
+    uint8_t hora[4];
+    ClockSetupAlarm(reloj, ALARMA, sizeof(ALARMA));
+    SimulateSeconds(60);
+    TEST_ASSERT_TRUE(alarm_state); //Alarma activada
+  
+    TEST_ASSERT_FALSE(ClockToggleAlarm(reloj));
+    TEST_ASSERT_FALSE(ClockGetAlarm(reloj, hora, sizeof(hora)));
 
+    ClockSetupPospuesta(reloj, POSPUESTA, sizeof(POSPUESTA));
+    ClockGetPospuesta(reloj, hora, sizeof(hora));
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(POSPUESTA, hora, sizeof(POSPUESTA));
+    
+
+}
 
 

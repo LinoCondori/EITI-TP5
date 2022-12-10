@@ -16,3 +16,7 @@ bool ClockGetAlarm(clock_t clock, uint8_t * alarm, uint8_t size);
 
 bool ClockToggleAlarm(clock_t clock);
 
+void ClockSetupPospuesta(clock_t clock, uint8_t const * const posp, uint8_t size);
+
+bool ClockGetPospuesta(clock_t clock, uint8_t * posp, uint8_t size);
+
